@@ -1,0 +1,10 @@
+body {
+	background: #141414;
+	color: #ffffff;
+}
+
+.movie-app > .row {
+	overflow-y: auto;
+	flex-wrap: wrap;
+  flex-direction: row;
+}
