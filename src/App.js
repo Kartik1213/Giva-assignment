@@ -4,12 +4,13 @@ import './App.css';
 import MovieSearch from './components/MovieSearch';
 import MovieHeading from './components/MovieHeading';
 import SearchBox from './components/SearchBox';
+import {Routes, Route, useNavigate} from 'react-router-dom';
+
 
 const App = () => {
 
   const [movies, setMovies] = useState([]);
   const [searchValue, setSearchValue] = useState('');
-  
 
 	const getMovieRequest = async (searchValue) => {
     console.log(searchValue)
