@@ -5,14 +5,15 @@ import MovieSearch from './components/MovieSearch';
 import MovieHeading from './components/MovieHeading';
 import SearchBox from './components/SearchBox';
 import {Routes, Route, useNavigate} from 'react-router-dom';
-
+import InfiniteScroll from "react-infinite-scroll-component";
 
 const App = () => {
 
   const [movies, setMovies] = useState([]);
   const [searchValue, setSearchValue] = useState('');
+  const [pageNumber , setPageNumber] = useState(1);
 
-	const getMovieRequest = async (searchValue) => {
+	const getMovieRequest = async (searchValue , pageNumber) => {
     console.log(searchValue)
     const options = {
       method: 'GET',
@@ -22,10 +23,10 @@ const App = () => {
       }
     };
     if(searchValue == ''){
-      var url = 'https://api.themoviedb.org/3/movie/popular?language=en-US&page=1'
+      var url = `https://api.themoviedb.org/3/movie/popular?language=en-US&page=${pageNumber}`
     }
     else{
-      var url = `https://api.themoviedb.org/3/search/movie?query=${searchValue}&include_adult=false&language=en-US&page=1`
+      var url = `https://api.themoviedb.org/3/search/movie?query=${searchValue}&include_adult=false&language=en-US&page=${pageNumber}`
     }
 		const response = await fetch(url, options);
 		const responseJson = await response.json();
@@ -33,12 +34,17 @@ const App = () => {
     console.log(responseJson)
 
 		if (responseJson.results) {
-			setMovies(responseJson.results);
+			setMovies(movies => [...movies, ...responseJson.results]);
 		}
 	};
 
+  const fetchMoreData = (searchValue , pageNumber) => {
+    getMovieRequest(searchValue , pageNumber)
+  };
+
 	useEffect(() => {
-		getMovieRequest(searchValue);
+    
+		getMovieRequest(searchValue , pageNumber);
 	}, [searchValue]);
 
 
@@ -48,9 +54,19 @@ const App = () => {
 				<MovieHeading heading='Movies' />
 				<SearchBox searchValue={searchValue} setSearchValue={setSearchValue} />
 			</div>
-			<div className='row'>
-        <MovieSearch movies={movies} />
-			</div>
+      
+        <div className='row scrollableDiv'>
+        <InfiniteScroll
+          dataLength={movies.length}
+          next={fetchMoreData(searchValue , pageNumber+1)}
+          hasMore={true}
+          loader={<h4>Loading...</h4>}
+          scrollThreshold="2000px"
+      >
+          <MovieSearch movies={movies} />
+          </InfiniteScroll>
+        </div>
+      
 		</div>
 	);
 };
